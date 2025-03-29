@@ -39,41 +39,46 @@ exports.registerAdmin = async (req, res) => {
   }
 };
 // Authentification d'un utilisateur
+const generateToken = (user) => {
+  return jwt.sign(
+    {
+      id: user._id.toString(), // Conversion explicite en string
+      role: user.role
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '8h',
+      algorithm: 'HS256', // Spécification explicite
+      header: {
+        typ: 'JWT',
+        alg: 'HS256'
+      }
+    }
+  );
+};
+
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    // Vérification de l'existence de l'utilisateur
-    const user = await User.findOne({ email, isActive: true });
-    if (!user) {
-      return res.status(401).json({ message: 'Identifiants invalides' });
+    const user = await User.findOne({ email }).select('+password');
+    if (!user || !(await user.comparePassword(password))) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
+
+    const token = generateToken(user);
     
-    // Vérification du mot de passe
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Identifiants invalides' });
-    }
-    
-    // Génération du token JWT
-    const token = user.generateAuthToken();
-    
-    res.json({ 
-      token,
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role
-      }
+    res.json({
+      token_type: 'Bearer',
+      access_token: token,
+      expires_in: 28800 // 8 heures en secondes
     });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Erreur du serveur' });
+    console.error('Login Error:', err);
+    res.status(500).json({ message: 'Authentication failed' });
   }
 };
-
 // Récupération du profil utilisateur
 exports.getProfile = async (req, res) => {
   try {

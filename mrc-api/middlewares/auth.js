@@ -1,20 +1,54 @@
 const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
-  // Récupération du token depuis l'en-tête Authorization
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  // 1. Vérification stricte du header Authorization
+  const authHeader = req.headers.authorization;
   
-  if (!token) {
-    return res.status(401).json({ message: 'Accès non autorisé - Token manquant' });
+  if (!authHeader) {
+    return res.status(401).json({
+      code: 'MISSING_AUTH_HEADER',
+      message: 'Authorization header is required'
+    });
   }
+
+  // 2. Vérification du format "Bearer <token>"
+  const parts = authHeader.split(' ');
   
+  if (parts.length !== 2) {
+    return res.status(401).json({
+      code: 'INVALID_AUTH_FORMAT',
+      message: 'Authorization header must be formatted: Bearer <token>'
+    });
+  }
+
+  const [scheme, token] = parts;
+
+  // 3. Vérification du schéma "Bearer"
+  if (!/^Bearer$/i.test(scheme)) {
+    return res.status(401).json({
+      code: 'INVALID_AUTH_SCHEME',
+      message: 'Authorization scheme must be "Bearer"'
+    });
+  }
+
+  // 4. Vérification de la présence du token
+  if (!token) {
+    return res.status(401).json({
+      code: 'MISSING_TOKEN',
+      message: 'Token is missing after Bearer'
+    });
+  }
+
+  // 5. Vérification du token JWT
   try {
-    // Vérification du token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (err) {
-    console.error(err);
-    res.status(401).json({ message: 'Accès non autorisé - Token invalide' });
+    return res.status(401).json({
+      code: 'INVALID_TOKEN',
+      message: 'Token is invalid or expired',
+      details: err.message
+    });
   }
 };

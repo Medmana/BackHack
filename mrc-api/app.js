@@ -21,9 +21,19 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Documentation Swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Vérifiez que les routes sont bien importées
+console.log(authRoutes); // Doit afficher [Function: router]
+console.log(patientRoutes); // Doit afficher [Function: router]
 
+// Documentation Swagger
+app.use('/api-docs', 
+  swaggerUi.serve, 
+  swaggerUi.setup(swaggerSpec, {
+    swaggerOptions: {
+      persistAuthorization: true // Garde le token entre les requêtes
+    }
+  })
+);
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientRoutes);

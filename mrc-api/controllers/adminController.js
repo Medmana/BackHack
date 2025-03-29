@@ -2,67 +2,68 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
 // Création d'un compte (admin ou doctor)
-exports.createAccount = async (req, res) => {
+exports.createUser = async (req, res) => {
   try {
-    const { firstName, lastName, email, role, phone, specialty } = req.body;
-    
-    // Génération d'un mot de passe aléatoire
-    const password = Math.random().toString(36).slice(-8);
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Un admin peut créer n'importe quel type de compte
+    const { email, password, role, ...rest } = req.body;
     
     const user = new User({
-      firstName,
-      lastName,
       email,
-      password: hashedPassword,
-      role,
-      phone,
-      specialty
+      password,
+      role: role || 'doctor', // Par défaut doctor si non spécifié
+      ...rest
     });
-    
+
     await user.save();
-    
-    res.status(201).json({
-      message: `Compte ${role} créé avec succès`,
-      temporaryPassword: password // À envoyer par email en production
-    });
+    res.status(201).json(user);
   } catch (err) {
-    console.error(err);
-    if (err.code === 11000) {
-      return res.status(400).json({ message: 'Cet email est déjà utilisé' });
-    }
-    res.status(500).json({ message: 'Erreur du serveur' });
+    res.status(400).json({ message: err.message });
   }
 };
 
-// Liste des utilisateurs (admins et doctors)
+// Accès à tous les utilisateurs
 exports.listUsers = async (req, res) => {
   try {
-    const users = await User.find({ isActive: true })
-      .select('-password')
-      .sort({ role: 1, lastName: 1 });
-    
+    const users = await User.find({});
     res.json(users);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Erreur du serveur' });
+    res.status(500).json({ message: err.message });
   }
 };
 // Désactivation d'un compte médecin
-exports.deactivateAccount = async (req, res) => {
+exports.deleteUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    console.log(`Admin ${req.user.id} deleting user ${req.params.id}`);
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: 'User deleted' });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+exports.updatePermissions = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { permissions } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { $set: { permissions } },
+      { new: true }
+    );
+
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
 
-    user.isActive = false;
-    await user.save();
-
-    res.json({ message: 'Compte désactivé avec succès' });
+    res.json({
+      message: 'Permissions mises à jour',
+      user
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Erreur du serveur' });
+    res.status(500).json({ 
+      message: 'Erreur lors de la mise à jour',
+      error: err.message 
+    });
   }
 };
-

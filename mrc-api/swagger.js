@@ -23,6 +23,9 @@ const options = {
           bearerFormat: 'JWT',
         },
       },
+      security: [{
+         bearerAuth: []
+      }],
       schemas: {
         Patient: {
           type: 'object',
@@ -332,11 +335,11 @@ swaggerSpec.paths = {
       },
     },
   },
-  '/admin/accounts': {
+  '/admin/users': {
     post: {
       tags: ['Administration'],
-      summary: 'Créer un compte (admin ou médecin)',
-      description: 'Crée un nouveau compte avec un mot de passe généré (admin seulement)',
+      summary: 'Créer un utilisateur (admin ou médecin)',
+      description: 'Crée un nouveau compte utilisateur (admin seulement)',
       security: [{ bearerAuth: [] }],
       requestBody: {
         required: true,
@@ -350,14 +353,16 @@ swaggerSpec.paths = {
       },
       responses: {
         201: {
-          description: 'Compte créé avec succès',
+          description: 'Utilisateur créé avec succès',
           content: {
             'application/json': {
               schema: {
                 type: 'object',
                 properties: {
-                  message: { type: 'string', example: 'Compte admin créé avec succès' },
-                  temporaryPassword: { type: 'string', example: 'motdepasse123' },
+                  message: { type: 'string', example: 'Utilisateur créé avec succès' },
+                  user: {
+                    $ref: '#/components/schemas/User'
+                  }
                 },
               },
             },
@@ -379,12 +384,12 @@ swaggerSpec.paths = {
     },
     get: {
       tags: ['Administration'],
-      summary: 'Liste tous les comptes',
+      summary: 'Liste tous les utilisateurs',
       description: 'Retourne la liste de tous les utilisateurs (admin seulement)',
       security: [{ bearerAuth: [] }],
       responses: {
         200: {
-          description: 'Liste des comptes',
+          description: 'Liste des utilisateurs',
           content: {
             'application/json': {
               schema: {
@@ -408,18 +413,18 @@ swaggerSpec.paths = {
       },
     },
   },
-  '/admin/accounts/{id}': {
+  '/admin/users/:id': {
     delete: {
       tags: ['Administration'],
-      summary: 'Désactiver un compte',
-      description: 'Désactive un compte utilisateur (admin seulement)',
+      summary: 'Supprimer un utilisateur',
+      description: 'Supprime un utilisateur du système (admin seulement)',
       security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: 'id',
           in: 'path',
           required: true,
-          description: 'ID de l\'utilisateur à désactiver',
+          description: 'ID de l\'utilisateur à supprimer',
           schema: {
             type: 'string',
           },
@@ -427,13 +432,13 @@ swaggerSpec.paths = {
       ],
       responses: {
         200: {
-          description: 'Compte désactivé',
+          description: 'Utilisateur supprimé',
           content: {
             'application/json': {
               schema: {
                 type: 'object',
                 properties: {
-                  message: { type: 'string', example: 'Compte désactivé avec succès' },
+                  message: { type: 'string', example: 'Utilisateur supprimé avec succès' },
                 },
               },
             },
@@ -453,8 +458,74 @@ swaggerSpec.paths = {
         },
       },
     },
+    put: {
+      tags: ['Administration'],
+      summary: 'Mettre à jour les permissions d\'un utilisateur',
+      description: 'Modifie les permissions d\'un utilisateur (admin seulement)',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          description: 'ID de l\'utilisateur à modifier',
+          schema: {
+            type: 'string',
+          },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                permissions: {
+                  type: 'object',
+                  example: { canEditPatients: true, canDeletePatients: false }
+                }
+              }
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: 'Permissions mises à jour',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string', example: 'Permissions mises à jour avec succès' },
+                  user: {
+                    $ref: '#/components/schemas/User'
+                  }
+                },
+              },
+            },
+          },
+        },
+        400: {
+          $ref: '#/components/responses/ValidationError',
+        },
+        401: {
+          $ref: '#/components/responses/UnauthorizedError',
+        },
+        403: {
+          $ref: '#/components/responses/ForbiddenError',
+        },
+        404: {
+          $ref: '#/components/responses/NotFoundError',
+        },
+        500: {
+          description: 'Erreur serveur',
+        },
+      },
+    },
   },
-   '/patients': {
+  '/patients': {
     get: {
       tags: ['Patients'],
       summary: 'Liste des patients',
@@ -811,6 +882,6 @@ swaggerSpec.paths = {
       },
     },
   }
- };
+};
 
 module.exports = swaggerSpec;

@@ -1,3 +1,4 @@
+// generateSecret.js
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
@@ -8,23 +9,20 @@ const jwtSecret = crypto.randomBytes(64).toString('hex');
 // Chemin vers le fichier .env
 const envPath = path.join(__dirname, '.env');
 
-// Ajoute ou met à jour la variable JWT_SECRET dans le .env
+// Mise à jour du fichier .env
+let envContents = '';
 if (fs.existsSync(envPath)) {
-  let envFile = fs.readFileSync(envPath, 'utf8');
+  envContents = fs.readFileSync(envPath, 'utf8');
   
-  // Si JWT_SECRET existe déjà, on la met à jour
-  if (envFile.includes('JWT_SECRET=')) {
-    envFile = envFile.replace(/JWT_SECRET=.*/, `JWT_SECRET=${jwtSecret}`);
-  } else {
-    // Sinon on l'ajoute
-    envFile += `\nJWT_SECRET=${jwtSecret}\n`;
-  }
-  
-  fs.writeFileSync(envPath, envFile);
-} else {
-  // Crée un nouveau fichier .env
-  fs.writeFileSync(envPath, `JWT_SECRET=${jwtSecret}\n`);
+  // Supprime l'ancien JWT_SECRET s'il existe
+  envContents = envContents.replace(/JWT_SECRET=.*\n/, '');
 }
 
-console.log('Nouveau JWT_SECRET généré et ajouté au fichier .env');
-console.log('Clé générée:', jwtSecret);
+// Ajoute le nouveau JWT_SECRET
+envContents += `JWT_SECRET=${jwtSecret}\n`;
+
+fs.writeFileSync(envPath, envContents);
+
+console.log('Nouveau JWT_SECRET généré:');
+console.log(jwtSecret);
+console.log('Le fichier .env a été mis à jour');
