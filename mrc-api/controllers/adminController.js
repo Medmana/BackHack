@@ -5,9 +5,10 @@ const bcrypt = require('bcryptjs');
 exports.createUser = async (req, res) => {
   try {
     // Un admin peut créer n'importe quel type de compte
-    const { email, password, role, ...rest } = req.body;
+    const { username, email, password, role, ...rest } = req.body;
     
     const user = new User({
+      username,
       email,
       password,
       role: role || 'doctor', // Par défaut doctor si non spécifié

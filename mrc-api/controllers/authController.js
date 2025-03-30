@@ -10,9 +10,10 @@ exports.registerAdmin = async (req, res) => {
       return res.status(403).json({ message: 'Un administrateur existe déjà' });
     }
 
-    const { firstName, lastName, email, password } = req.body;
+    const { username, firstName, lastName, email, password } = req.body;
     
     const admin = new User({
+      username,
       firstName,
       lastName,
       email,
@@ -27,13 +28,14 @@ exports.registerAdmin = async (req, res) => {
       user: {
         id: admin._id,
         email: admin.email,
+        username: admin.username,
         role: admin.role
       }
     });
   } catch (err) {
     console.error(err);
     if (err.code === 11000) {
-      return res.status(400).json({ message: 'Cet email est déjà utilisé' });
+      return res.status(400).json({ message: 'Cet username est déjà utilisé' });
     }
     res.status(500).json({ message: 'Erreur du serveur' });
   }
@@ -59,9 +61,9 @@ const generateToken = (user) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
     
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ username }).select('+password');
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
