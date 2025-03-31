@@ -20,6 +20,7 @@ const patientSchema = new mongoose.Schema({
   phone: { type: String, required: true, match: [/^\+229\d{10}$/, 'Numéro de téléphone béninois invalide'] },
   email: { type: String, lowercase: true },
   fileNumber: { type: String, unique: true, required: true },
+  attendingDoctor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
