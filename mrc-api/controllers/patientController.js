@@ -113,17 +113,12 @@ exports.deletePatient = async (req, res) => {
   }
 };
 
-// Liste des patients pour un médecin
+// Liste de tous les patients (sans filtre par médecin)
 exports.listPatients = async (req, res) => {
   try {
-    let query = { isActive: true };
-    
-    if (req.user.role === 'doctor') {
-      query.attendingDoctor = req.user.id;
-    }
-    
-    const patients = await Patient.find(query)
-      .select('firstName lastName fileNumber birthDate gender kidneyDisease.stage')
+    const patients = await Patient.find({ isActive: true })
+      .select('firstName lastName fileNumber birthDate gender kidneyDisease.stage attendingDoctor')
+      .populate('attendingDoctor', 'firstName lastName') // Optionnel: afficher le nom du médecin traitant
       .sort({ lastName: 1 });
     
     res.json(patients);
