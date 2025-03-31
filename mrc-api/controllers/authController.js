@@ -27,7 +27,6 @@ exports.registerAdmin = async (req, res) => {
       message: 'Compte administrateur créé avec succès',
       user: {
         id: admin._id,
-        email: admin.email,
         username: admin.username,
         role: admin.role
       }

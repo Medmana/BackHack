@@ -8,6 +8,7 @@ const authRoutes = require('./routes/authRoutes');
 const patientRoutes = require('./routes/patientRoutes');
 const consultationRoutes = require('./routes/consultationRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const examRoutes = require('./routes/examRoutes');
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/consultations', consultationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/exams', examRoutes);
 
 // Gestion des erreurs
 app.use((err, req, res, next) => {

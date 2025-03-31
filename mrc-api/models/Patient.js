@@ -5,13 +5,14 @@ const patientSchema = new mongoose.Schema({
   lastName: { type: String, required: true },
   birthDate: { type: Date, required: true },
   gender: { type: String, enum: ['male', 'female', 'other'], required: true },
+  bloodGroup: { type: String, enum: ['A+','A-','B+','B-', 'AB+','AB-','O+','O-']},
   address: {
     street: String,
     city: String,
     postalCode: String,
     country: { type: String, default: 'Bénin' }
   },
-  phone: { type: String, required: true, match: [/^\+229\d{8}$/, 'Numéro de téléphone béninois invalide'] },
+  phone: { type: String, required: true, match: [/^\+229\d{10}$/, 'Numéro de téléphone béninois invalide'] },
   email: { type: String, lowercase: true },
   medicalHistory: {
     chronicDiseases: [String],
