@@ -68,3 +68,41 @@ exports.updatePermissions = async (req, res) => {
     });
   }
 };
+
+// Modification d'un utilisateur
+exports.updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    // Si le mot de passe est fourni, on le hash avant de l'enregistrer
+    if (updates.password) {
+      updates.password = await bcrypt.hash(updates.password, 10);
+    }
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    // On retire le mot de passe de la réponse
+    const userWithoutPassword = user.toObject();
+    delete userWithoutPassword.password;
+
+    res.json({
+      message: 'Utilisateur mis à jour avec succès',
+      user: userWithoutPassword
+    });
+
+  } catch (err) {
+    res.status(400).json({ 
+      message: 'Erreur lors de la mise à jour',
+      error: err.message 
+    });
+  }
+};

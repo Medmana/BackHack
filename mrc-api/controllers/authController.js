@@ -64,15 +64,15 @@ exports.login = async (req, res) => {
     
     const user = await User.findOne({ username }).select('+password');
     if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Identifiant ou mot de passe incorrect' });
     }
-
     const token = generateToken(user);
-    
+    const userWithoutPassword = await User.findOne({ username }).select('-password');
     res.json({
       token_type: 'Bearer',
       access_token: token,
-      expires_in: 28800 // 8 heures en secondes
+      expires_in: 28800, // 8 heures en secondes
+      user: userWithoutPassword
     });
 
   } catch (err) {
