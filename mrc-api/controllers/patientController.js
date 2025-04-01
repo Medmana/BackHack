@@ -39,7 +39,7 @@ exports.getPatientById = async (req, res) => {
     
     // Récupérer le patient avec l'ID spécifié
     const patient = await Patient.findById(patientId)
-      .select('firstName lastName fileNumber birthDate gender kidneyDisease.stage attendingDoctor');
+  
     
     if (!patient) {
       return res.status(404).json({ message: 'Patient non trouvé' });
