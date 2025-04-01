@@ -9,7 +9,7 @@ const patientRoutes = require('./routes/patientRoutes');
 const consultationRoutes = require('./routes/consultationRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const examRoutes = require('./routes/examRoutes');
-
+const antecedentRoutes = require('./routes/antecedentRoutes');
 const app = express();
 
 // Connexion à MongoDB
@@ -41,7 +41,7 @@ app.use('/api/patients', patientRoutes);
 app.use('/api/consultations', consultationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/exams', examRoutes);
-
+app.use('/api/antecedents', antecedentRoutes);
 // Gestion des erreurs
 app.use((err, req, res, next) => {
   console.error(err.stack);
