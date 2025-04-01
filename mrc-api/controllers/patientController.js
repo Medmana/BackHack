@@ -144,8 +144,7 @@ exports.deletePatient = async (req, res) => {
 exports.listPatients = async (req, res) => {
   try {
     const patients = await Patient.find({ isActive: true })
-      .select('firstName lastName fileNumber birthDate gender kidneyDisease.stage attendingDoctor')
-      .sort({ lastName: 1 });
+    .sort({ createdAt: -1 });  // -1 pour un tri descendant (du plus récent au plus ancien)
     
     // Récupérer les noms des médecins
     const doctorIds = patients.map(p => p.attendingDoctor).filter(Boolean);
@@ -193,7 +192,7 @@ exports.generateMedicalSummary = async (req, res) => {
     }
     
     // Vérification des permissions
-    if (req.user.role === 'doctor' && patient.attendingDoctor.toString() !== req.user.id) {
+    if (req.user.role === 'doctor') {
       return res.status(403).json({ message: 'Accès non autorisé' });
     }
     
