@@ -1,5 +1,6 @@
 const BloodExam = require('../models/BloodExam');
 const UrinExam = require('../models/UrinExam');
+const mongoose = require('mongoose');
 
 // Helper pour gérer les erreurs
 const handleError = (err, res) => {
@@ -23,10 +24,20 @@ const handleError = (err, res) => {
 // CRUD pour BloodExam
 exports.createBloodExam = async (req, res) => {
   try {
+    const { patientId, ...examData } = req.body;
+    doctorId = req.user.id;
+    
+    // Validation des champs requis
+    if (!patientId || !doctorId) {
+      return res.status(400).json({ 
+        message: 'patientId est requis' 
+      });
+    }
+
     const bloodExam = new BloodExam({
-      ...req.body,
-      doctorId: req.user.doctorId,
-      patientId: req.body.patientId
+      ...examData,
+      patientId,
+      doctorId
     });
     
     await bloodExam.save();
@@ -38,6 +49,7 @@ exports.createBloodExam = async (req, res) => {
 
 exports.getBloodExams = async (req, res) => {
   try {
+    console.log('getBloodExams called with params:', req.params, 'and query:', req.query);
     const patientId = req.params.patientId || req.query.patientId;
     
     if (!patientId) {
@@ -112,10 +124,20 @@ exports.deleteBloodExam = async (req, res) => {
 // CRUD pour UrinExam (structure identique)
 exports.createUrinExam = async (req, res) => {
   try {
+    const { patientId, ...examData } = req.body;
+    doctorId = req.user.id;
+    
+    // Validation des champs requis
+    if (!patientId || !doctorId) {
+      return res.status(400).json({ 
+        message: 'patientId et doctorId sont requis' 
+      });
+    }
+
     const urinExam = new UrinExam({
-      ...req.body,
-      doctorId: req.user.doctorId,
-      patientId: req.body.patientId
+      ...examData,
+      patientId,
+      doctorId
     });
     
     await urinExam.save();

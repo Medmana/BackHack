@@ -1,18 +1,26 @@
 // routes/exam.routes.js
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/auth'); // Destructuration correcte
 const examController = require('../controllers/exam.controller');
+const auth = require('../middlewares/auth');
+const role = require('../middlewares/role');
 
-// Utilisation correcte du middleware
-router.use(auth); // Pas de parenthèses ici
+// Middlewares globaux
+router.use(auth);
+router.use(role(['doctor', 'admin']));
 
 // Routes BloodExam
 router.post('/blood', examController.createBloodExam);
-router.get('/blood', examController.getBloodExams);
+router.get('/blood/:patientId', examController.getBloodExams); // Via URL param
+router.get('/blood/exam/:id', examController.getBloodExamById);
+router.put('/blood/:id', examController.updateBloodExam);
+router.delete('/blood/:id', examController.deleteBloodExam);
 
-// Routes UrinExam
+// UrinExam Routes
 router.post('/urin', examController.createUrinExam);
-router.get('/urin', examController.getUrinExams);
+router.get('/urin/:patientId', examController.getUrinExams);
+router.get('/urin/exam/:id', examController.getUrinExamById);
+router.put('/urin/:id', examController.updateUrinExam);
+router.delete('/urin/:id', examController.deleteUrinExam);
 
 module.exports = router;
