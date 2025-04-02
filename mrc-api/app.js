@@ -42,6 +42,7 @@ app.use('/api/consultations', consultationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/exams', examRoutes);
 app.use('/api/antecedents', antecedentRoutes);
+app.use('/api/prescription', require('./routes/prescriptionRoutes'));
 // Gestion des erreurs
 app.use((err, req, res, next) => {
   console.error(err.stack);
