@@ -4,30 +4,30 @@ const Patient = require('../models/Patient');
 // Enregistrement d'une nouvelle consultation
 exports.createConsultation = async (req, res) => {
   try {
-    const patient = await Patient.findOne({ 
-      _id: req.params.patientId, 
-      isActive: true 
-    });
+    const patient = await Patient.findOneAndUpdate(
+      { 
+        _id: req.params.patientId, 
+        isActive: true 
+      },
+      { $set: { attendingDoctor: req.user.id } }, // Optionnel: mettre à jour le médecin traitant
+      { new: true }
+    );
     
     if (!patient) {
       return res.status(404).json({ message: 'Patient non trouvé' });
     }
     
-    // Vérification des permissions
-    if (req.user.role === 'doctor' && patient.attendingDoctor.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Accès non autorisé' });
-    }
-    
-    const consultationData = req.body;
-    consultationData.patient = patient._id;
-    consultationData.doctor = req.user.id;
+    const consultationData = {
+      ...req.body,
+      patient: patient._id,
+      doctor: req.user.id // Le médecin qui crée la consultation
+    };
     
     const consultation = new Consultation(consultationData);
     await consultation.save();
     
-    // Mise à jour des données du patient si nécessaire
     if (consultationData.creatinineLevel) {
-      patient.kidneyDisease.stage = calculateDiseaseStage(consultationData.creatinineLevel);
+      patient.diseases.stage = calculateDiseaseStage(consultationData.creatinineLevel);
       await patient.save();
     }
     
@@ -43,6 +43,7 @@ exports.createConsultation = async (req, res) => {
 
 // Liste des consultations d'un patient
 exports.getPatientConsultations = async (req, res) => {
+  console.log("ppp")
   try {
     const patient = await Patient.findOne({ 
       _id: req.params.patientId, 
@@ -53,10 +54,7 @@ exports.getPatientConsultations = async (req, res) => {
       return res.status(404).json({ message: 'Patient non trouvé' });
     }
     
-    // Vérification des permissions
-    if (req.user.role === 'doctor' && patient.attendingDoctor.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Accès non autorisé' });
-    }
+  
     
     const consultations = await Consultation.find({ patient: patient._id })
       .sort({ date: -1 })

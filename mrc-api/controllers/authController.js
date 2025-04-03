@@ -67,6 +67,7 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Identifiant ou mot de passe incorrect' });
     }
     const token = generateToken(user);
+    console.log('Token généré:', token);
     const userWithoutPassword = await User.findOne({ username }).select('-password');
     res.json({
       token_type: 'Bearer',

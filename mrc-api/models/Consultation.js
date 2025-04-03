@@ -19,12 +19,6 @@ const consultationSchema = new mongoose.Schema({
     result: String,
     date: Date
   }],
-  treatment: [{
-    medication: String,
-    dosage: String,
-    duration: String,
-    instructions: String
-  }],
   nextAppointment: Date,
   notes: String,
   createdAt: { type: Date, default: Date.now }
