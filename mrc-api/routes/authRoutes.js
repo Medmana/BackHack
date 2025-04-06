@@ -9,5 +9,6 @@ router.post('/login', authController.login);
 
 // Récupération du profil utilisateur
 router.get('/profile', authController.getProfile);
+router.get('/logout', authController.logout);
 
 module.exports = router;

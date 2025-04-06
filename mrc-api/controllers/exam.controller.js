@@ -149,7 +149,18 @@ exports.createUrinExam = async (req, res) => {
 
 exports.getUrinExams = async (req, res) => {
   try {
-    const exams = await UrinExam.find().sort({ createdAt: -1 });
+    const patientId = req.params.patientId || req.query.patientId;
+    
+    if (!patientId) {
+      return res.status(400).json({ message: 'Patient ID is required' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(patientId)) {
+      return res.status(400).json({ message: 'Invalid Patient ID format' });
+    }
+
+    // Récupérer les examens pour ce patient uniquement
+    const exams = await UrinExam.find({ patientId })
+      .sort({ createdAt: -1 });
     res.json(exams);
   } catch (err) {
     handleError(err, res);

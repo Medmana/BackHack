@@ -91,3 +91,11 @@ exports.getProfile = async (req, res) => {
     res.status(500).json({ message: 'Erreur du serveur' });
   }
 };
+exports.logout = async (req, res) => {
+  try {
+    res.json({ message: 'Déconnexion réussie' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erreur du serveur' });
+  }
+}
