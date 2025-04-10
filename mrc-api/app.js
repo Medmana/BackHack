@@ -11,11 +11,15 @@ const adminRoutes = require('./routes/adminRoutes');
 const examRoutes = require('./routes/examRoutes');
 const antecedentRoutes = require('./routes/antecedentRoutes');
 const app = express();
+const { scheduleAllReminders } = require('./services/schedulerService');
+const alertRoutes = require('./routes/alertRoutes');
+
 
 // Connexion à MongoDB
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connecté à MongoDB'))
   .catch(err => console.error('Erreur de connexion à MongoDB:', err));
+   scheduleAllReminders();
 
 // Middlewares
 app.use(cors());
@@ -43,6 +47,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/exams', examRoutes);
 app.use('/api/antecedents', antecedentRoutes);
 app.use('/api/prescription', require('./routes/prescriptionRoutes'));
+app.use('/api/alerts', alertRoutes);
 // Gestion des erreurs
 app.use((err, req, res, next) => {
   console.error(err.stack);

@@ -211,5 +211,121 @@ exports.generateMedicalSummary = async (req, res) => {
     res.status(500).json({ message: 'Erreur du serveur' });
   }
 };
+// controllers/patientController.js
 
+const Message = require('../models/Message');
+const { sendEmail, sendSMS } = require('../utils/notificationService');
+
+// Fonction pour envoyer des messages/emails
+exports.sendBulkMessages = async (req, res) => {
+  try {
+    const { subject, content, channel, criteria } = req.body;
+    const userId = req.user.id;
+
+    // Valider les données
+    if (!subject || !content || !channel) {
+      return res.status(400).json({ message: 'Sujet, contenu et canal sont obligatoires' });
+    }
+
+    // Trouver les patients selon les critères
+    let query = { isActive: true };
+
+    if (criteria.diseaseStages && criteria.diseaseStages.length > 0) {
+      query['diseases.stage'] = { $in: criteria.diseaseStages };
+    }
+    if (criteria.diseaseName) {
+      query['diseases.name'] = { $regex: new RegExp(criteria.diseaseName, 'i') };
+    }
+    if (criteria.customSelection && criteria.customSelection.length > 0) {
+      query._id = { $in: criteria.customSelection };
+    }
+
+    const patients = await Patient.find(query).select('_id email phone firstName lastName');
+
+    if (patients.length === 0) {
+      return res.status(400).json({ message: 'Aucun patient trouvé avec les critères spécifiés' });
+    }
+
+    // Enregistrer le message dans la base de données
+    const message = new Message({
+      subject,
+      content,
+      recipients: patients.map(p => p._id),
+      criteria,
+      sentBy: userId,
+      channel
+    });
+
+    await message.save();
+
+    // Envoyer les messages (en arrière-plan)
+    patients.forEach(patient => {
+      try {
+        if (channel === 'email' || channel === 'both') {
+          if (patient.email) {
+            sendEmail({
+              to: patient.email,
+              subject: subject,
+              text: content.replace(/{{name}}/g, patient.firstName)
+            });
+          }
+        }
+        
+        if (channel === 'sms' || channel === 'both') {
+          if (patient.phone) {
+            sendSMS({
+              to: patient.phone,
+              message: content.replace(/{{name}}/g, patient.firstName)
+            });
+          }
+        }
+      } catch (err) {
+        console.error(`Erreur d'envoi pour patient ${patient._id}:`, err);
+      }
+    });
+
+    res.status(200).json({
+      message: 'Messages en cours d\'envoi',
+      totalRecipients: patients.length,
+      messageId: message._id
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erreur du serveur' });
+  }
+};
+
+// Fonction pour récupérer l'historique des messages
+exports.getMessageHistory = async (req, res) => {
+  try {
+    const messages = await Message.find()
+      .sort({ sentAt: -1 })
+      .populate('sentBy', 'firstName lastName')
+      .populate('recipients', 'firstName lastName fileNumber');
+
+    res.json(messages);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erreur du serveur' });
+  }
+};
+
+// Fonction pour récupérer les détails d'un message spécifique
+exports.getMessageDetails = async (req, res) => {
+  try {
+    const message = await Message.findById(req.params.id)
+      .populate('sentBy', 'firstName lastName')
+      .populate('recipients', 'firstName lastName fileNumber email phone');
+
+    if (!message) {
+      return res.status(404).json({ message: 'Message non trouvé' });
+    }
+
+    res.json(message);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erreur du serveur' });
+  }
+};
 module.exports = exports;

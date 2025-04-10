@@ -8,10 +8,10 @@ const patientSchema = new mongoose.Schema({
   bloodGroup: { type: String, enum: ['A+','A-','B+','B-', 'AB+','AB-','O+','O-','']},
   height: { type: Number, description: "Taille en cm" },
   weight: { type: Number, description: "Poids en kg" },
-  diseases: [{
+  diseases: {
     name: { type: String, required: true },
     stage: { type: String, enum: ['débutant', 'intermédiaire', 'avancé', 'chronique',''] },
-    diagnosisDate: { type: Date },}],
+    diagnosisDate: { type: Date },},
   address: {
     street: String,
     city: String,

@@ -22,5 +22,18 @@ router.get('/:id', patientController.getPatientById);
 router.put('/:id', patientController.updatePatient);
 router.delete('/:id', patientController.deletePatient);
 router.get('/:id/summary', patientController.generateMedicalSummary);
+router.post('/messages/send',
+  patientController.sendBulkMessages
+);
+
+// Route pour l'historique des messages
+router.get('/messages/history', 
+  patientController.getMessageHistory
+);
+
+// Route pour les détails d'un message
+router.get('/messages/:id',
+  patientController.getMessageDetails
+);
 
 module.exports = router; // <-- L'export doit être présent
