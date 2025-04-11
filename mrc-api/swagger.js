@@ -11,12 +11,12 @@ const options = {
     },
     servers: [
       {
-      url: 'http://localhost:3000/', description: 'Serveur de développement' ,
+      url: 'http://localhost:3000/api', description: 'Serveur de développement' ,
       
       },
       {
       
-      url: 'https://backhack-production.up.railway.app/', description: 'Serveur de production', 
+      url: 'https://backhack-production.up.railway.app/api', description: 'Serveur de production', 
       },
     ],
     components: {

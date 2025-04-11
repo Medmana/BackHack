@@ -9,7 +9,7 @@ const patientSchema = new mongoose.Schema({
   height: { type: Number, description: "Taille en cm" },
   weight: { type: Number, description: "Poids en kg" },
   diseases: {
-    name: { type: String, required: true },
+    name: { type: String, required: false },
     stage: { type: String, enum: ['débutant', 'intermédiaire', 'avancé', 'chronique',''] },
     diagnosisDate: { type: Date },},
   address: {
