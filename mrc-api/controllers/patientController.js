@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const Antecedent = require('../models/Antecedent');
 const Prescription = require('../models/Prescription');
-const BloodExam = require('../models/BloodExam');
+const BloodExam = require('../models/bloodExam');
 const UrinExam = require('../models/UrinExam');
 
 // Enregistrement d'un nouveau patient

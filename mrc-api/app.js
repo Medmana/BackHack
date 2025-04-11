@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Vérifiez que les routes sont bien importées
-//console.log(authRoutes); // Doit afficher [Function: router]
+//console.log(authRoutes); // Doit afficher [Function: router]jkt
 //console.log(patientRoutes); // Doit afficher [Function: router]
 
 // Documentation Swagger
