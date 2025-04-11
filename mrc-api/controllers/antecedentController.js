@@ -1,4 +1,4 @@
-const Antecedent = require('../models/antecedent');
+const Antecedent = require('../models/Antecedent');
 
 exports.create = async (req, res) => {
   try {
