@@ -5,8 +5,8 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const Antecedent = require('../models/Antecedent');
 const Prescription = require('../models/Prescription');
-const BloodExam = require('../models/bloodExam');
-const UrinExam = require('../models/urinExam');
+const BloodExam = require('../models/BloodExam');
+const UrinExam = require('../models/UrinExam');
 
 // Enregistrement d'un nouveau patient
 exports.registerPatient = async (req, res) => {
