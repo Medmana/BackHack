@@ -56,5 +56,5 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT ;
 app.listen(PORT, () => {
-  console.log(`Serveur démarré sur le port ${PORT}`);
+  console.log(`Serveur API démarré sur le port ${PORT}`);
 });
