@@ -40,4 +40,7 @@ const antecedentSchema = new mongoose.Schema({
 // Index pour les requêtes fréquentes
 antecedentSchema.index({ patientId: 1, type: 1 });
 
-module.exports = mongoose.model('Antecedent', antecedentSchema);
+// Vérifie si le modèle existe déjà avant de le créer
+const Antecedent = mongoose.models.Antecedent || mongoose.model('Antecedent', antecedentSchema);
+
+module.exports = Antecedent;

@@ -22,6 +22,7 @@ router.get('/:id', patientController.getPatientById);
 router.put('/:id', patientController.updatePatient);
 router.delete('/:id', patientController.deletePatient);
 router.get('/:id/summary', patientController.generateMedicalSummary);
+router.get('/:patientId/dossier', patientController.generatePatientDossier);
 router.post('/messages/send',
   patientController.sendBulkMessages
 );

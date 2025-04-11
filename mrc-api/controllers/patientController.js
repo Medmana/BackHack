@@ -1,8 +1,12 @@
 const Patient = require('../models/Patient');
 const Consultation = require('../models/Consultation');
-const { generatePDF } = require('../utils/pdfGenerator');
+const { generatePatientPDF } = require('../utils/pdfGenerator');
 const mongoose = require('mongoose');
 const User = require('../models/User');
+const Antecedent = require('../models/Antecedent');
+const Prescription = require('../models/Prescription');
+const BloodExam = require('../models/BloodExam');
+const UrinExam = require('../models/UrinExam');
 
 // Enregistrement d'un nouveau patient
 exports.registerPatient = async (req, res) => {
@@ -326,6 +330,50 @@ exports.getMessageDetails = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Erreur du serveur' });
+  }
+};
+
+
+
+exports.generatePatientDossier = async (req, res) => {
+  try {
+    const { patientId } = req.params;
+    console.log("patientId", patientId)
+
+    // Récupérer toutes les données
+    const [patient, antecedents, prescriptions, bloodExams, urinExams, consultations] = await Promise.all([
+      Patient.findById(patientId),
+      Antecedent.find({ patientId }),
+      Prescription.find({ patientId }).sort({ date: -1 }).limit(5),
+      BloodExam.find({ patientId }).sort({ examDate: -1 }).limit(3),
+      UrinExam.find({ patientId }).sort({ examDate: -1 }).limit(3),
+      Consultation.find({ patient: patientId }).sort({ date: -1 }).limit(5)
+    ]);
+
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient non trouvé' });
+    }
+
+    // Combiner les examens
+    const exams = [...bloodExams, ...urinExams];
+
+    // Générer le PDF
+    const pdfBuffer = await generatePatientPDF({
+      patient,
+      antecedents,
+      prescriptions,
+      exams,
+      consultations
+    });
+
+    // Envoyer le PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=dossier-${patient.fileNumber}.pdf`);
+    res.send(pdfBuffer);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur lors de la génération du dossier' });
   }
 };
 module.exports = exports;
