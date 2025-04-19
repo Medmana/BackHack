@@ -96,8 +96,9 @@ POST /api/auth/login
 **Body (JSON)** :
 
 ```json
+les identifiants de connexion de l'admin actuel est 
 {
-  "email": "admin@mrc.bj",
+  "identifiant": "superadmin",
   "password": "MotDePasseSecure123"
 }
 ```
