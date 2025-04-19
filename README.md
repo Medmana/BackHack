@@ -94,9 +94,9 @@ POST /api/auth/login
 ```
 
 **Body (JSON)** :
+les identifiants de connexion de l'admin actuel sont :
 
 ```json
-les identifiants de connexion de l'admin actuel est 
 {
   "identifiant": "superadmin",
   "password": "MotDePasseSecure123"
